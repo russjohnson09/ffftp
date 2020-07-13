@@ -13,3 +13,10 @@ _There are still a few issues_
 - run `epi`
 - Follow steps
   - Icon is `./icon.ico'
+
+
+# TODO
+
+sftp
+
+https://ourcodeworld.com/articles/read/524/how-to-use-live-reload-in-your-electron-project

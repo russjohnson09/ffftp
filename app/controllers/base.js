@@ -128,9 +128,11 @@
 
       $scope.saveFavorite = false;
 
-      if ( $scope.ftpHost.substring(0, 5) == 'sftp.') {
-        $scope.showingPassphrase = true;
-        //$scope.connectSsh();
+      let isSftpConnection = true;
+      if ( isSftpConnection // $scope.ftpHost.substring(0, 5) == 'sftp.'
+      ) {
+        // $scope.showingPassphrase = true;
+        $scope.connectSsh();
       } else {
         $scope.connectFtp();
       }
@@ -177,43 +179,48 @@
       $scope.splitPath();
     }
 
-    $scope.connectSsh = () => {
+    $scope.connectSsh = async () => {
       console.log('connection through sftp')
 
-      $scope.showingPassphrase = false
+      // $scope.showingPassphrase = false
 
-      let home = require('os').homedir(),
-        privateKeyUri = $scope.sftpPrivateKey.replace('~', home).replace(/\//g, dirSeperator)
+      let home = require('os').homedir()
+        // ,privateKeyUri = $scope.sftpPrivateKey.replace('~', home).replace(/\//g, dirSeperator)
+        ;
 
-      ssh = new node_ssh()
-      ssh.connect({
-        host: $scope.ftpHost.substring(5),
-        port: $scope.ftpPort,
-        username: $scope.ftpUsername,
-        privateKey: privateKeyUri,
-        passphrase: $scope.sftpPassphrase,
-        tryKeyboard: true
-      }, (err) => {
-        $scope.console('red', err)
-        $scope.emptyMessage = 'Error connecting.'
-      }).then(() => {
-        $scope.console('white', `Connected to ${ssh.connection.config.host}`)
+        let sshConnectOpts = {
+          host: $scope.ftpHost,
+          // host: $scope.ftpHost.substring(5), //the original idea is to ignore the sftp begginging section?
+          port: $scope.ftpPort,
+          username: $scope.ftpUsername,
+          password: $scope.ftpPassword,
+          // privateKey: privateKeyUri,
+          // passphrase: $scope.sftpPassphrase,
+          // tryKeyboard: true
+        };
 
-        // Add SFTP functions
-        $scope.changeDir = $scopeSftp.changeDir
-        $scope.newFolder = $scopeSftp.newFolder
-        $scope.deleteFile = $scopeSftp.deleteFile
-        $scope.renameFile = $scopeSftp.renameFile
-        $scope.getDownloadTree = $scopeSftp.getDownloadTree
-        $scope.saveAllFilesToDisk = $scopeSftp.saveAllFilesToDisk
-        $scope.saveFileToDisk = $scopeSftp.saveFileToDisk
-        $scope.mkDirs = $scopeSftp.mkDirs
-        $scope.upFiles = $scopeSftp.upFiles
+      ssh = new node_ssh();
 
-        // Start Scripts
-        $scope.changeDir()
-        $scope.splitPath()
-      })
+
+      console.log({sshConnectOpts});
+      await ssh.connect(sshConnectOpts);
+
+      // $scope.console('white', `Connected to ${ssh.connection.config.host}`)
+
+
+      // Add SFTP functions
+      $scope.changeDir = $scopeSftp.changeDir
+      $scope.newFolder = $scopeSftp.newFolder
+      $scope.deleteFile = $scopeSftp.deleteFile
+      $scope.renameFile = $scopeSftp.renameFile
+      $scope.getDownloadTree = $scopeSftp.getDownloadTree
+      $scope.saveAllFilesToDisk = $scopeSftp.saveAllFilesToDisk
+      $scope.saveFileToDisk = $scopeSftp.saveFileToDisk
+      $scope.mkDirs = $scopeSftp.mkDirs
+      $scope.upFiles = $scopeSftp.upFiles
+      // Start Scripts
+      $scope.changeDir()
+      $scope.splitPath()
     }
 
     $scope.saveFavoritesToStorage = () => {
